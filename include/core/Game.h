@@ -1,0 +1,31 @@
+#pragma once
+#include <SDL3/SDL.h>
+#include <vector>
+#include "Window.h"
+#include "../entities/Player.h"
+#include "../entities/Platform.h"
+#include "../entities/Projectile.h"
+
+class Game {
+public:
+    Game();
+    ~Game();
+
+    bool init(const char* title, int width, int height);
+    void handleEvents(SDL_Event* event);
+    void update(float deltaTime);
+    void render();
+    void clean();
+
+private:
+    Window* gameWindow;
+    bool isRunning;
+    
+    Player* player1;
+    Player* player2;
+    std::vector<Platform> platforms;
+    std::vector<Projectile> bullets;
+    SDL_Texture* texProjectile; 
+    SDL_Texture* texPlayer1;
+    SDL_Texture* texPlayer2;
+};
