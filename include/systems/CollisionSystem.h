@@ -51,16 +51,33 @@ public:
                 p.position.y = SCREEN_HEIGHT - p.radius*2; p.velocity.y = -p.velocity.y; bounced = true; 
             }
 
-            SDL_FRect bulletRect = p.getRect();
-            for (const auto& plat : platforms) {
-                SDL_FRect platRect = plat.getRect();
-                if (SDL_HasRectIntersectionFloat(&bulletRect, &platRect)) {
-                    p.velocity.x = -p.velocity.x;
-                    p.velocity.y = -p.velocity.y;
-                    bounced = true;
-                    break;
-                }
-            }
+SDL_FRect bulletRect = p.getRect();
+for (const auto& plat : platforms) {
+    SDL_FRect platRect = plat.getRect();
+    SDL_FRect intersection;
+    if (SDL_GetRectIntersectionFloat(&bulletRect, &platRect, &intersection)) {
+        if (intersection.w < intersection.h) {
+            p.velocity.x = -p.velocity.x;
+            if (p.position.x < plat.x) 
+                p.position.x -= intersection.w;
+            else 
+                p.position.x += intersection.w;
+        } 
+        else {
+            p.velocity.y = -p.velocity.y;
+            if (p.position.y < plat.y) 
+                p.position.y -= intersection.h;
+            else 
+                p.position.y += intersection.h;
+        }
+
+        p.bounceCount++;
+        if (p.bounceCount >= MAX_BOUNCES) {
+            p.active = false;
+        }
+        break;
+    }
+}
 
             if (bounced) {
                 p.bounceCount++;
