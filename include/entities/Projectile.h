@@ -10,7 +10,8 @@ struct Projectile {
     bool active;
     int bounceCount;
     float existTime; 
+    float damage;
 
-    Projectile(float x, float y, float velX, float velY, float r, int owner);
+    Projectile(float x, float y, float velX, float velY, float r, int owner, float dmg);
     SDL_FRect getRect() const;
 };

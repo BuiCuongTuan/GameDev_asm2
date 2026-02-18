@@ -1,6 +1,7 @@
 #pragma once
 #include <SDL3/SDL.h>
 #include "../utils/Vector2.h"
+#include "../utils/Constants.h"
 
 struct Player {
     int id;
@@ -8,6 +9,8 @@ struct Player {
     Vector2 velocity;
     float width, height;
     bool isGrounded;
+    float hp;
+    float maxHp;
     float mana;
     float maxMana;
     float shootCooldown;

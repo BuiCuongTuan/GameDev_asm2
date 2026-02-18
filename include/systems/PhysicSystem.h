@@ -6,16 +6,16 @@
 
 class PhysicSystem {
 public:
-    void update(Player& player, std::vector<Projectile>& bullets, float deltaTime) {
+    void updatePlayer(Player& player, float deltaTime) {
         player.velocity.y += GRAVITY * deltaTime;
         player.position.x += player.velocity.x * deltaTime;
         player.position.y += player.velocity.y * deltaTime;
+    }
 
+    void updateBullets(std::vector<Projectile>& bullets, float deltaTime) {
         for (auto& p : bullets) {
             if (!p.active) continue;
-            
             p.existTime += deltaTime;
-
             p.position.x += p.velocity.x * deltaTime;
             p.position.y += p.velocity.y * deltaTime;
         }
