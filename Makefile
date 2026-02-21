@@ -9,6 +9,7 @@ LIBS = -lSDL3
 
 SRCS = src/main.cpp \
        src/core/Game.cpp \
+       src/core/Timer.cpp\
        src/core/Window.cpp \
        src/entities/Player.cpp \
        src/entities/Projectile.cpp \

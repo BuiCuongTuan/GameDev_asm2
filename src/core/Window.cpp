@@ -1,5 +1,9 @@
 #include "../../include/core/Window.h"
 
+#ifdef _WIN32
+#include <windows.h>
+#endif
+
 Window::Window() : window(nullptr), renderer(nullptr) {}
 
 Window::~Window() {
@@ -7,6 +11,12 @@ Window::~Window() {
 }
 
 bool Window::init(const char* title, int width, int height) {
+    // Ẩn cửa sổ console trên Windows
+#ifdef _WIN32
+    HWND consoleWindow = GetConsoleWindow();
+    ShowWindow(consoleWindow, SW_HIDE);
+#endif
+
     SDL_SetHint(SDL_HINT_RENDER_VSYNC, "1");
     if (!SDL_CreateWindowAndRenderer(title, width, height, SDL_WINDOW_RESIZABLE, &window, &renderer)) {
         SDL_Log("Could not create window/renderer: %s", SDL_GetError());

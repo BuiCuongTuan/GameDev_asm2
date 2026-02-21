@@ -7,6 +7,7 @@
 #include "../../include/systems/RenderSystem.h"
 #include <iostream>
 #include <algorithm>
+#include <cstdio> 
 
 InputSystem inputSys;
 AmmoSystem ammoSys;
@@ -17,7 +18,8 @@ RenderSystem renderSys;
 Game::Game() : gameWindow(nullptr), isRunning(false), 
                 player1(nullptr), player2(nullptr), 
                 texProjectile(nullptr), 
-                texPlayer1(nullptr), texPlayer2(nullptr) {}
+                texPlayer1(nullptr), texPlayer2(nullptr),
+                matchTimer(90.0f) {} // Khởi tạo thời gian 90 giây
 
 Game::~Game() { clean(); }
 
@@ -67,7 +69,11 @@ void Game::handleEvents(SDL_Event* event) {
 void Game::update(float deltaTime) {
     if (!player1 || !player2) return;
     
-    if (player1->hp <= 0 || player2->hp <= 0) return;
+    // Dừng cập nhật logic nếu có người chết hoặc hết giờ
+    if (player1->hp <= 0 || player2->hp <= 0 || matchTimer.isTimeUp()) return;
+
+    // Cập nhật đếm ngược
+    matchTimer.update(deltaTime);
 
     int numKeys;
     const bool* keys = SDL_GetKeyboardState(&numKeys);
@@ -97,18 +103,48 @@ void Game::render() {
     gameWindow->clear();
     SDL_Renderer* renderer = gameWindow->getRenderer();
 
+    // Vẽ nền các bức tường/mặt đất
     SDL_SetRenderDrawColor(renderer, 60, 60, 60, 255);
     for (const auto& plat : platforms) {
         SDL_FRect rect = plat.getRect();
         SDL_RenderFillRect(renderer, &rect);
     }
+
+    // VẼ TIMER BẰNG SỐ ĐẾM NGƯỢC 
+    int timeLeft = (int)matchTimer.getCurrentTime();
+    char timeStr[16];
+    snprintf(timeStr, sizeof(timeStr), "%02d", timeLeft); // Chuyển số thành chuỗi
+
+    // Phóng to Scale của renderer lên 4 lần 
+    SDL_SetRenderScale(renderer, 4.0f, 4.0f);
+    SDL_SetRenderDrawColor(renderer, 255, 200, 0, 255); // Đặt màu chữ là Vàng
+    
+    // Tính toán tọa độ hiển thị
+    float textX = (400.0f / 4.0f) - 8.0f; 
+    float textY = 15.0f / 4.0f; 
+    SDL_RenderDebugText(renderer, textX, textY, timeStr);
+    SDL_SetRenderScale(renderer, 1.0f, 1.0f);
+
     if (player1 && player2) {
         renderSys.render(renderer, *player1, *player2, bullets, platforms, texProjectile, texPlayer1, texPlayer2);
-        if (player1->hp <= 0 || player2->hp <= 0) {
+        
+        // Khi trận đấu kết thúc (Hết giờ hoặc có người hết máu)
+        if (player1->hp <= 0 || player2->hp <= 0 || matchTimer.isTimeUp()) {
              SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
-             SDL_SetRenderDrawColor(renderer, 0, 0, 0, 150);
+             SDL_SetRenderDrawColor(renderer, 0, 0, 0, 150); // Lớp phủ màu đen mờ
              SDL_FRect overlay = {0, 0, 800, 600};
              SDL_RenderFillRect(renderer, &overlay);
+             
+             // In thông báo kết thúc giữa màn hình
+             SDL_SetRenderScale(renderer, 4.0f, 4.0f);
+             if (matchTimer.isTimeUp() && player1->hp > 0 && player2->hp > 0) {
+                 SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+                 SDL_RenderDebugText(renderer, (400.0f / 4.0f) - 32.0f, (300.0f / 4.0f) - 4.0f, "TIME UP!");
+             } else {
+                 SDL_SetRenderDrawColor(renderer, 255, 50, 50, 255);
+                 SDL_RenderDebugText(renderer, (400.0f / 4.0f) - 36.0f, (300.0f / 4.0f) - 4.0f, "GAME OVER");
+             }
+             SDL_SetRenderScale(renderer, 1.0f, 1.0f);
         }
     }
     

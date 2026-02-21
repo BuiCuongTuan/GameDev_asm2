@@ -2,6 +2,7 @@
 #include <SDL3/SDL.h>
 #include <vector>
 #include "Window.h"
+#include "Timer.h"
 #include "../entities/Player.h"
 #include "../entities/Platform.h"
 #include "../entities/Projectile.h"
@@ -28,4 +29,6 @@ private:
     SDL_Texture* texProjectile; 
     SDL_Texture* texPlayer1;
     SDL_Texture* texPlayer2;
+
+    Timer matchTimer; 
 };
